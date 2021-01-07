@@ -49,30 +49,10 @@ This repo shows how to deploy OpenVPN inside a VPC using Terraform and Ansible.
    ```
    tfswitch
    ```
-1. Deploy all resources:
+1. Deploy all resources and install OpenVPN on bastion:
    ```sh
    terraform init
    terraform apply
-   ```
-
-## Install OpenVPN on the bastion
-
-1. Change to ansible directory:
-   ```
-   cd ansible
-   ```
-1. Install ansible dependencies:
-   ```
-   ansible-galaxy install -r requirements.yml
-   ```
-1. To confirm ansible configuration, ping all hosts:
-   ```
-   ansible all -m ping -i inventory -v
-   ```
-   > This only works for hosts that have the generated SSH key included in their authorized_keys. If you are using the module with an existing VPC and instances, you need to add the generated key to each instances or to change the ansible config to use your own private key.
-1. Install OpenVPN on the bastion:
-   ```
-   ansible-playbook -i inventory playbook-openvpn.yml
    ```
 
 ## Connect to OpenVPN
