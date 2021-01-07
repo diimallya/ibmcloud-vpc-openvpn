@@ -147,3 +147,35 @@ module ansible {
   private_key_pem = tls_private_key.ssh.private_key_pem
   openvpn_server_network = var.openvpn_server_network
 }
+
+#
+# Execute Ansible playbook to install OpenVPN
+# 
+resource "null_resource" "ansible" {
+  connection {
+    bastion_host = module.bastion.bastion_ip
+    host         = "0.0.0.0"
+    #private_key = "${file("~/.ssh/ansible")}"
+    private_key = tls_private_key.ssh.private_key_pem
+  }
+
+  triggers = {
+    always_run = timestamp()
+  }
+  provisioner "ansible" {
+    plays {
+      playbook {
+        file_path = "${path.module}/ansible/playbook-openvpn.yml"
+
+        roles_path = ["${path.module}/ansible/roles"]
+      }
+      inventory_file = "${path.module}/ansible/inventory"
+      verbose        = true
+    }
+    ansible_ssh_settings {
+      insecure_no_strict_host_key_checking = true
+      connect_timeout_seconds              = 60
+    }
+  }
+  
+}

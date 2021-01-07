@@ -1,0 +1,41 @@
+- name: Create openvpn config file
+  template:
+    src: server.conf.j2
+    dest: "{{ openvpn_base_dir }}/{{openvpn_config_file}}.conf"
+    owner: root
+    group: root
+  notify:
+    - restart openvpn
+
+- name: Install LDAP config
+  template:
+    src: ldap.conf.j2
+    dest: "{{ openvpn_base_dir }}/auth/ldap.conf"
+    owner: root
+    group: root
+  when: openvpn_use_ldap
+
+- name: Create log directory
+  file:
+    dest: "{{ openvpn_log_dir }}"
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Copy openvpn logrotate config file
+  template:
+    src: openvpn_logrotate.conf.j2
+    dest: /etc/logrotate.d/openvpn-{{ openvpn_config_file }}.conf
+    owner: root
+    group: root
+    mode: 0400
+  when: ansible_os_family != 'Solaris'
+
+- name: Setup openvpn auto-start & start
+  service:
+    name: "{{openvpn_service_name}}"
+    enabled: yes
+    state: started
+  # Github Actions doesn't allow entrypoints, so PID 1 isn't an init system
+  when: ansible_service_mgr != "tail"
+
