@@ -19,3 +19,7 @@ output instance_ips {
 output resource_group_id {
   value = local.resource_group_id
 }
+
+output ssh_private_key {
+	value = tls_private_key.ssh.private_key_pem
+}
